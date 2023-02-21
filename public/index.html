@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Chat</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"
+      integrity="sha512-rwu37NnL8piEGiFhe2c5j4GahN+gFsIn9k/0hkRY44iz0pc81tBNaUN56qF8X4fy+5pgAAgYi2C9FXdetne5sQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <form id="chat">
+      <input type="text" name="username" placeholder="Digite seu usuário" />
+      <div class="messages"></div>
+      <input type="text" name="message" placeholder="Digite sua Mensagem" />
+      <button type="submit">Send</button>
+    </form>
+
+    <script type="text/javascript">
+      var socket = io("http://localhost:3000");
+
+      function renderMessages(message) {
+        $(".messages").append(
+          '<div class="message"><strong>' +
+            message.author +
+            "</strong>:" +
+            message.message +
+            "</div>"
+        );
+      }
+
+      $("#chat").submit(function (event) {
+        event.preventDefault();
+
+        var author = $("input[name=username]").val();
+        var message = $("input[name=message]").val();
+
+        //Aqui iremos criar um objeto como valor
+        //Assim não vamos nos limitar enviando somentes strings e A
+        //vamos poder enviar arquivos por exemplo(quem sabe na proxima atualização)
+
+        if (author.lenght && message.lenght) {
+          var messageObject = {
+            author: author,
+            message: message,
+          };
+
+          renderMessages(messageObject);
+
+          socket.emit("sendMessage", messageObject);
+        }
+      });
+    </script>
+  </body>
+</html>
