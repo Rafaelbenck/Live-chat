@@ -10,20 +10,23 @@ app.set("views", path.join(__dirname, "public"));
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
-app.set("/", (req, res) => {
-  res.render("index.html");
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
 });
-
-//podemos utilizar um banco como mongoDb por exemplo
-let messages = [];
 
 io.on("connection", (socket) => {
-  console.log(`Socket is runnig: ${socket.id}`);
-
-  socket.on("sendMessage", (data) => {
-    console.log(data);
-    messages.push(data);
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg);
   });
+
+  io.emit("some event", {
+    someProperty: "some value",
+    otherProperty: "other value",
+  });
+
+  socket.broadcast.emit("hi");
 });
 
-server.listen(3000);
+server.listen(3000, () => {
+  console.log("ta rodando o bixo");
+});
