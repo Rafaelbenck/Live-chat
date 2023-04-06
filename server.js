@@ -1,32 +1,25 @@
 const express = require("express");
-const path = require("path");
-
 const app = express();
-const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 
-app.use(express.static(path.join(__dirname, "public")));
-app.set("views", path.join(__dirname, "public"));
-app.engine("html", require("ejs").renderFile);
-app.set("view engine", "html");
+app.use(express.static(__dirname + "/public"));
 
-app.get("/", (req, res) => {
+app.get("/", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
 
-io.on("connection", (socket) => {
-  socket.on("chat message", (msg) => {
+io.on("connection", function (socket) {
+  console.log("a user connected");
+  socket.on("disconnect", function () {
+    console.log("user disconnected");
+  });
+  socket.on("chat message", function (msg) {
+    console.log("message: " + msg);
     io.emit("chat message", msg);
   });
-
-  io.emit("some event", {
-    someProperty: "some value",
-    otherProperty: "other value",
-  });
-
-  socket.broadcast.emit("hi");
 });
 
-server.listen(3000, () => {
-  console.log("ta rodando o bixo");
+http.listen(3000, function () {
+  console.log("listening on *:3000");
 });
